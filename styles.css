@@ -205,7 +205,7 @@ input[type="search"]::placeholder {
   opacity: 0.35;
 }
 
-.job-submeta > span:has(.job-tag)::before {
+.job-submeta > .job-tag::before {
   content: none;
 }
 
