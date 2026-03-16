@@ -142,7 +142,7 @@ function renderItem(job, rank) {
   }
 
   if (job.keyword) {
-    const tag = document.createElement("span");
+    const tag = document.createElement("div");
     tag.className = "job-tag";
     tag.textContent = job.keyword;
     meta.append(tag);
