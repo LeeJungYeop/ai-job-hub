@@ -205,6 +205,10 @@ input[type="search"]::placeholder {
   opacity: 0.35;
 }
 
+.job-submeta > span:has(.job-tag)::before {
+  content: none;
+}
+
 .job-source {
   display: inline-flex;
   align-items: center;
