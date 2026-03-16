@@ -72,7 +72,7 @@ a {
 
 .filters-row {
   display: grid;
-  grid-template-columns: minmax(200px, 1.8fr) repeat(3, minmax(110px, 0.8fr));
+  grid-template-columns: minmax(200px, 1.8fr) repeat(4, minmax(100px, 0.7fr));
   gap: 8px;
   margin-bottom: 8px;
 }

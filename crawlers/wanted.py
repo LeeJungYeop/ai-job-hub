@@ -26,10 +26,12 @@ def fetch_jobs():
                     annual_to = item.get("annual_to")
                     if annual_to == 0:
                         experience = "신입"
-                    elif annual_to:
-                        experience = f"경력 {annual_to}년 이하"
-                    else:
+                    elif annual_to is None:
                         experience = ""
+                    elif annual_to >= 99:
+                        experience = "경력무관"
+                    else:
+                        experience = f"경력 {annual_to}년 이하"
                     jobs.append({
                         "id": f"wanted_{item['id']}",
                         "title": item.get("position", ""),
