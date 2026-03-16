@@ -112,7 +112,7 @@
   let allJobs = [];
 
   async function loadJobs() {
-    const res = await fetch("../data/jobs.json");
+    const res = await fetch("./jobs.json");
     const data = await res.json();
     allJobs = data.jobs;
 

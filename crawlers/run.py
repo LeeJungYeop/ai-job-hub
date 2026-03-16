@@ -28,11 +28,11 @@ def main():
         "jobs": all_jobs,
     }
 
-    os.makedirs("../data", exist_ok=True)
-    with open("../data/jobs.json", "w", encoding="utf-8") as f:
+    os.makedirs("../docs", exist_ok=True)
+    with open("../docs/jobs.json", "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
 
-    print(f"\n완료: 총 {len(all_jobs)}개 → data/jobs.json 저장")
+    print(f"\n완료: 총 {len(all_jobs)}개 → docs/jobs.json 저장")
 
 
 if __name__ == "__main__":
