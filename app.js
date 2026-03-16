@@ -3,6 +3,7 @@ const emptyState = document.getElementById("empty-state");
 const searchInput = document.getElementById("search-input");
 const sourceFilter = document.getElementById("source-filter");
 const keywordFilter = document.getElementById("keyword-filter");
+const experienceFilter = document.getElementById("experience-filter");
 const sortFilter = document.getElementById("sort-filter");
 const countEl = document.getElementById("count");
 const updatedEl = document.getElementById("updated");
@@ -52,6 +53,7 @@ function bindEvents() {
   searchInput.addEventListener("input", render);
   sourceFilter.addEventListener("change", render);
   keywordFilter.addEventListener("change", render);
+  experienceFilter.addEventListener("change", render);
   sortFilter.addEventListener("change", render);
 }
 
@@ -59,11 +61,18 @@ function render() {
   const search = searchInput.value.trim().toLowerCase();
   const source = sourceFilter.value;
   const keyword = keywordFilter.value;
+  const experience = experienceFilter.value;
   const sort = sortFilter.value;
 
   let filtered = allJobs.filter(job => {
     if (source !== "all" && job.source !== source) return false;
     if (keyword !== "all" && job.keyword !== keyword) return false;
+    if (experience !== "all") {
+      const exp = job.experience || "";
+      if (experience === "신입" && !exp.includes("신입")) return false;
+      if (experience === "경력무관" && !exp.includes("경력무관")) return false;
+      if (experience === "경력" && (exp.includes("신입") || exp.includes("경력무관") || !exp)) return false;
+    }
     if (search) {
       const hay = [job.title, job.company, job.location].join(" ").toLowerCase();
       if (!hay.includes(search)) return false;
