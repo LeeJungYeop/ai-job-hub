@@ -128,6 +128,10 @@ function renderItem(job, rank) {
     meta.append(subSpan(job.experience));
   }
 
+  if (job.company_size) {
+    meta.append(subSpan(job.company_size));
+  }
+
   if (job.keyword) {
     const tag = document.createElement("span");
     tag.className = "job-tag";
