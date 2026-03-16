@@ -23,12 +23,20 @@ def fetch_jobs():
                 if not items:
                     break
                 for item in items:
+                    annual_to = item.get("annual_to")
+                    if annual_to == 0:
+                        experience = "신입"
+                    elif annual_to:
+                        experience = f"경력 {annual_to}년 이하"
+                    else:
+                        experience = ""
                     jobs.append({
                         "id": f"wanted_{item['id']}",
                         "title": item.get("position", ""),
                         "company": item.get("company", {}).get("name", ""),
                         "location": item.get("address", {}).get("location", ""),
-                        "experience": item.get("experience_level", {}).get("name", ""),
+                        "experience": experience,
+                        "company_size": "",
                         "url": f"https://www.wanted.co.kr/wd/{item['id']}",
                         "source": "원티드",
                         "keyword": keyword,

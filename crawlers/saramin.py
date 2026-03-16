@@ -26,16 +26,20 @@ def fetch_jobs():
                 for item in items:
                     title_tag = item.select_one(".job_tit a")
                     company_tag = item.select_one(".corp_name a")
-                    location_tag = item.select_one(".job_condition span")
+                    cond_spans = item.select(".job_condition span")
+                    company_size_tag = item.select_one(".company_nm em")
                     if not title_tag:
                         continue
                     job_id = title_tag.get("href", "").split("rec_idx=")[-1].split("&")[0]
+                    location = cond_spans[0].get_text(strip=True) if len(cond_spans) > 0 else ""
+                    experience = cond_spans[1].get_text(strip=True) if len(cond_spans) > 1 else ""
                     jobs.append({
                         "id": f"saramin_{job_id}",
                         "title": title_tag.get_text(strip=True),
                         "company": company_tag.get_text(strip=True) if company_tag else "",
-                        "location": location_tag.get_text(strip=True) if location_tag else "",
-                        "experience": "",
+                        "location": location,
+                        "experience": experience,
+                        "company_size": company_size_tag.get_text(strip=True) if company_size_tag else "",
                         "url": f"https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx={job_id}",
                         "source": "사람인",
                         "keyword": keyword,
