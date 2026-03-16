@@ -3,6 +3,7 @@ import requests
 HEADERS = {
     "User-Agent": "Mozilla/5.0",
     "Accept": "application/json",
+    "x-wanted-locale": "ko_KR",
 }
 
 KEYWORDS = ["AI", "ML", "머신러닝", "딥러닝", "인공지능", "데이터사이언스", "컴퓨터비전", "NLP", "LLM"]
@@ -12,7 +13,7 @@ def fetch_jobs():
     for keyword in KEYWORDS:
         offset = 0
         while True:
-            url = f"https://www.wanted.co.kr/api/v4/jobs?query={keyword}&offset={offset}&limit=100"
+            url = f"https://www.wanted.co.kr/api/v4/jobs?query={keyword}&offset={offset}&limit=100&country=kr&locations=all&years=-1&job_sort=job.latest_order"
             try:
                 res = requests.get(url, headers=HEADERS, timeout=10)
                 if res.status_code != 200:
