@@ -50,12 +50,20 @@ def fetch_jobs():
                         title = gi_links[1].get_text(strip=True) if len(gi_links) > 1 else ""
                         company = gi_links[2].get_text(strip=True) if len(gi_links) > 2 else ""
 
+                        # 경력: 텍스트에서 신입/경력 포함 span 찾기
+                        experience = ""
+                        for span in item.find_all("span"):
+                            t = span.get_text(strip=True)
+                            if any(k in t for k in ["신입", "경력", "무관"]) and len(t) < 20:
+                                experience = t
+                                break
+
                         jobs.append({
                             "id": f"jobkorea_{job_id}",
                             "title": title,
                             "company": company,
                             "location": chip_texts[0] if len(chip_texts) > 0 else "",
-                            "experience": "",
+                            "experience": experience,
                             "company_size": chip_texts[2] if len(chip_texts) > 2 else "",
                             "url": href,
                             "source": "잡코리아",
