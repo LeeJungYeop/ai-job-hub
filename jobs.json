@@ -1,7 +1,17 @@
 {
-  "updated_at": "2026-03-16 16:57",
-  "total": 2024,
+  "updated_at": "2026-03-16 17:10",
+  "total": 2023,
   "jobs": [
+    {
+      "id": "wanted_348384",
+      "title": "자율주행 AI 엔지니어 (R&D)",
+      "company": "카카오모빌리티(kakaomobility)",
+      "location": "경기",
+      "experience": "",
+      "url": "https://www.wanted.co.kr/wd/348384",
+      "source": "원티드",
+      "keyword": "AI"
+    },
     {
       "id": "wanted_348382",
       "title": "AI솔루션(의료영상 의료기기) 국내영업_서울경기인천",
@@ -989,16 +999,6 @@
       "location": "경기",
       "experience": "",
       "url": "https://www.wanted.co.kr/wd/346704",
-      "source": "원티드",
-      "keyword": "AI"
-    },
-    {
-      "id": "wanted_346610",
-      "title": "[대동에이아이랩] Vision AI 기술개발 (스마트파밍/ 정밀농업)",
-      "company": "대동애그테크",
-      "location": "서울",
-      "experience": "",
-      "url": "https://www.wanted.co.kr/wd/346610",
       "source": "원티드",
       "keyword": "AI"
     },
@@ -3543,6 +3543,16 @@
       "keyword": "AI"
     },
     {
+      "id": "saramin_53243791",
+      "title": "(주)케이티알티미디어AI&백엔드 엔지니어 경력직 채용",
+      "company": "(주)케이티알티미디어",
+      "location": "서울서초구",
+      "experience": "",
+      "url": "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53243791",
+      "source": "사람인",
+      "keyword": "AI"
+    },
+    {
       "id": "saramin_53306971",
       "title": "AI개발자 모집",
       "company": "엔컴주식회사",
@@ -5939,16 +5949,6 @@
       "location": "서울구로구",
       "experience": "",
       "url": "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=52895287",
-      "source": "사람인",
-      "keyword": "AI"
-    },
-    {
-      "id": "saramin_53243791",
-      "title": "(주)케이티알티미디어AI&백엔드 엔지니어 경력직 채용",
-      "company": "(주)케이티알티미디어",
-      "location": "서울서초구",
-      "experience": "",
-      "url": "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53243791",
       "source": "사람인",
       "keyword": "AI"
     },
@@ -8523,6 +8523,16 @@
       "keyword": "ML"
     },
     {
+      "id": "saramin_53349652",
+      "title": "[메가존클라우드] Business Enablement&Training (신입)",
+      "company": "메가존클라우드(주)",
+      "location": "경기과천시",
+      "experience": "",
+      "url": "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53349652",
+      "source": "사람인",
+      "keyword": "ML"
+    },
+    {
       "id": "saramin_53171011",
       "title": "[코스닥 상장사] 2026년 이에이트 부문별 채용",
       "company": "이에이트(주)",
@@ -8813,16 +8823,6 @@
       "keyword": "ML"
     },
     {
-      "id": "saramin_52857011",
-      "title": "[SpaceLAB]광학·위성 AIT 자동화 시스템 개발 엔지니어(대전)",
-      "company": "텔레픽스(주)",
-      "location": "대전유성구",
-      "experience": "",
-      "url": "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=52857011",
-      "source": "사람인",
-      "keyword": "ML"
-    },
-    {
       "id": "saramin_53197514",
       "title": "한국전력기술(주) 2026년도 상반기 정규직 채용",
       "company": "한국전력기술(주)",
@@ -8869,6 +8869,16 @@
       "location": "경기성남시 분당구",
       "experience": "",
       "url": "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53194735",
+      "source": "사람인",
+      "keyword": "머신러닝"
+    },
+    {
+      "id": "saramin_53329379",
+      "title": "[토스증권] 전 직군 대규모 채용",
+      "company": "(주)비바리퍼블리카",
+      "location": "서울강남구",
+      "experience": "",
+      "url": "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53329379",
       "source": "사람인",
       "keyword": "머신러닝"
     },
@@ -8959,16 +8969,6 @@
       "location": "경기성남시 수정구",
       "experience": "",
       "url": "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53295678",
-      "source": "사람인",
-      "keyword": "머신러닝"
-    },
-    {
-      "id": "saramin_53329379",
-      "title": "[토스증권] 전 직군 대규모 채용",
-      "company": "(주)비바리퍼블리카",
-      "location": "서울강남구",
-      "experience": "",
-      "url": "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53329379",
       "source": "사람인",
       "keyword": "머신러닝"
     },
@@ -9139,6 +9139,16 @@
       "location": "서울강남구",
       "experience": "",
       "url": "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53342559",
+      "source": "사람인",
+      "keyword": "머신러닝"
+    },
+    {
+      "id": "saramin_53311880",
+      "title": "2026년도 상반기 4차 S/W개발 신입/경력 공개채용",
+      "company": "주식회사오르빛알티(OrbitRTCo.,Ltd.)",
+      "location": "서울금천구",
+      "experience": "",
+      "url": "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53311880",
       "source": "사람인",
       "keyword": "머신러닝"
     },
@@ -9699,16 +9709,6 @@
       "location": "서울금천구",
       "experience": "",
       "url": "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53182350",
-      "source": "사람인",
-      "keyword": "머신러닝"
-    },
-    {
-      "id": "saramin_53311880",
-      "title": "2026년도 상반기 4차 S/W개발 신입/경력 공개채용",
-      "company": "주식회사오르빛알티(OrbitRTCo.,Ltd.)",
-      "location": "서울금천구",
-      "experience": "",
-      "url": "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53311880",
       "source": "사람인",
       "keyword": "머신러닝"
     },
@@ -12273,6 +12273,16 @@
       "keyword": "인공지능"
     },
     {
+      "id": "saramin_53349764",
+      "title": "2026년 농촌진흥청 전문임기제 나급(인공지능) 경력경쟁채용",
+      "company": "농촌진흥청",
+      "location": "전북전주시 덕진구",
+      "experience": "",
+      "url": "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53349764",
+      "source": "사람인",
+      "keyword": "인공지능"
+    },
+    {
       "id": "saramin_52945919",
       "title": "(주)메디컬에이아이 HR 담당자 모집",
       "company": "(주)메디컬에이아이",
@@ -12449,16 +12459,6 @@
       "location": "서울서초구",
       "experience": "",
       "url": "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53201045",
-      "source": "사람인",
-      "keyword": "인공지능"
-    },
-    {
-      "id": "saramin_53044680",
-      "title": "[경력직] AI 모델/AI Agent 서비스 검증(SQA) 채용",
-      "company": "어니컴(주)",
-      "location": "경기수원시 영통구",
-      "experience": "",
-      "url": "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53044680",
       "source": "사람인",
       "keyword": "인공지능"
     },
@@ -16853,16 +16853,6 @@
       "keyword": "컴퓨터비전"
     },
     {
-      "id": "saramin_53219871",
-      "title": "중부대학교 충청캠퍼스 정규직(운영직) 직원 채용 공고(~03.16)",
-      "company": "중부대학교",
-      "location": "충남금산군",
-      "experience": "",
-      "url": "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53219871",
-      "source": "사람인",
-      "keyword": "컴퓨터비전"
-    },
-    {
       "id": "saramin_53308080",
       "title": "농어촌지역개발 부문 신입사원 채용(서울사무실 지역역량강화)",
       "company": "(주)우리누리",
@@ -16989,16 +16979,6 @@
       "location": "경기군포시",
       "experience": "",
       "url": "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53340033",
-      "source": "사람인",
-      "keyword": "컴퓨터비전"
-    },
-    {
-      "id": "saramin_53219947",
-      "title": "중부대학교 충청캠퍼스 정규직(운영직) 직원 채용 공고(~03.16.)",
-      "company": "중부대학교(고양캠퍼스)",
-      "location": "경기고양시 덕양구",
-      "experience": "",
-      "url": "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53219947",
       "source": "사람인",
       "keyword": "컴퓨터비전"
     },
@@ -17499,6 +17479,26 @@
       "location": "경기성남시 분당구",
       "experience": "",
       "url": "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53341687",
+      "source": "사람인",
+      "keyword": "컴퓨터비전"
+    },
+    {
+      "id": "saramin_53247726",
+      "title": "가산/월290만/미용의료기기/CS엔지니어/유지보수/AS/운전가능자",
+      "company": "(주)엠제이코리아",
+      "location": "서울금천구",
+      "experience": "",
+      "url": "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53247726",
+      "source": "사람인",
+      "keyword": "컴퓨터비전"
+    },
+    {
+      "id": "saramin_53291885",
+      "title": "[정규직/영등포구청역/복지우수] IT전문기업 정보보안 컨설턴트",
+      "company": "(주)템피드",
+      "location": "서울영등포구",
+      "experience": "",
+      "url": "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53291885",
       "source": "사람인",
       "keyword": "컴퓨터비전"
     },
@@ -20229,16 +20229,6 @@
       "location": "경기성남시 분당구",
       "experience": "",
       "url": "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53341832",
-      "source": "사람인",
-      "keyword": "LLM"
-    },
-    {
-      "id": "saramin_53123435",
-      "title": "[VISION AI 솔루션] AI개발자",
-      "company": "(주)에이아이썸",
-      "location": "서울강남구",
-      "experience": "",
-      "url": "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53123435",
       "source": "사람인",
       "keyword": "LLM"
     }
