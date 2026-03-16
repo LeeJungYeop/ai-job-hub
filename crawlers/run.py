@@ -4,6 +4,7 @@ from datetime import datetime, timezone, timedelta
 
 from wanted import fetch_jobs as fetch_wanted
 from saramin import fetch_jobs as fetch_saramin
+from jobkorea import fetch_jobs as fetch_jobkorea
 
 KST = timezone(timedelta(hours=9))
 
@@ -18,6 +19,10 @@ def main():
 
     print("사람인 크롤링...")
     all_jobs.extend(fetch_saramin())
+    print(f"  → {len(all_jobs)}개")
+
+    print("잡코리아 크롤링...")
+    all_jobs.extend(fetch_jobkorea())
     print(f"  → {len(all_jobs)}개")
 
     updated_at = datetime.now(KST).strftime("%Y-%m-%d %H:%M")
