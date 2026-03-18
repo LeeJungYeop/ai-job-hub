@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 신입 채용 분석 — AI Job Hub (노이즈 필터 적용)</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; background: #0f1117; color: #e0e0e0; }
+
+  header {
+    background: linear-gradient(135deg, #1a1f2e, #252b3b);
+    padding: 40px;
+    text-align: center;
+    border-bottom: 1px solid #2e3347;
+  }
+  header h1 { font-size: 2rem; color: #7ee8a2; margin-bottom: 8px; }
+  header p { color: #8b97b0; font-size: 0.9rem; }
+  .filter-badge {
+    display: inline-block;
+    margin-top: 10px;
+    background: #1a3325;
+    border: 1px solid #2e5540;
+    color: #7ee8a2;
+    font-size: 0.8rem;
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+    padding: 30px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .stat-card {
+    background: #1a1f2e;
+    border: 1px solid #2e3347;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-card .num { font-size: 2.2rem; font-weight: 700; color: #7ee8a2; }
+  .stat-card .num.red { color: #f07070; }
+  .stat-card .label { font-size: 0.82rem; color: #8b97b0; margin-top: 6px; }
+
+  .section { max-width: 1200px; margin: 0 auto; padding: 10px 40px 30px; }
+  .section h2 { font-size: 1.15rem; color: #a0cfff; margin-bottom: 20px; padding-bottom: 8px; border-bottom: 1px solid #2e3347; }
+
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+  .chart-box {
+    background: #1a1f2e;
+    border: 1px solid #2e3347;
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .chart-box h3 { font-size: 0.9rem; color: #c0cce0; margin-bottom: 16px; text-align: center; }
+  .chart-box canvas { max-height: 260px; }
+
+  .insight-box {
+    background: #1a1f2e;
+    border: 1px solid #2e3347;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+  .insight-box h3 { font-size: 0.9rem; color: #a0cfff; margin-bottom: 12px; }
+  .insight-list { list-style: none; }
+  .insight-list li { padding: 6px 0; font-size: 0.88rem; color: #c0cce0; border-bottom: 1px solid #1e2233; line-height: 1.6; }
+  .insight-list li:last-child { border-bottom: none; }
+  .hl { color: #7ee8a2; font-weight: 600; }
+  .hl-red { color: #f07070; font-weight: 600; }
+  .hl-yellow { color: #f0c040; font-weight: 600; }
+  .hl-blue { color: #7eb8f7; font-weight: 600; }
+
+  .company-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 16px; margin-bottom: 30px; }
+  .company-card {
+    background: #1a1f2e;
+    border: 1px solid #2e3347;
+    border-radius: 12px;
+    padding: 18px;
+    transition: border-color 0.2s, transform 0.1s;
+  }
+  .company-card:hover { border-color: #7ee8a2; transform: translateY(-2px); }
+  .co-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .co-name { font-size: 1rem; font-weight: 700; color: #fff; }
+  .co-type { font-size: 0.72rem; padding: 3px 8px; border-radius: 20px; font-weight: 600; flex-shrink: 0; margin-left: 8px; }
+  .type-대기업 { background: #1e3a5f; color: #7eb8f7; }
+  .type-스타트업 { background: #1a3325; color: #7ee8a2; }
+  .type-중견 { background: #2e2040; color: #b49cf7; }
+  .co-title { font-size: 0.87rem; color: #c0cce0; margin-bottom: 10px; line-height: 1.45; }
+  .co-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+  .tag { font-size: 0.73rem; padding: 2px 7px; border-radius: 4px; background: #252b3b; color: #8b97b0; border: 1px solid #2e3347; }
+  .tag.hl { background: #1e3325; color: #7ee8a2; border-color: #2e5540; }
+  .tag.warn { background: #2a1a1a; color: #f07070; border-color: #5a2020; }
+  .co-meta { font-size: 0.78rem; color: #6a7589; }
+  .co-link { display: inline-block; margin-top: 8px; font-size: 0.78rem; color: #7eb8f7; text-decoration: none; }
+  .co-link:hover { text-decoration: underline; }
+  .deadline-warn { color: #f07070; font-weight: 600; }
+  .deadline-ok { color: #7ee8a2; font-weight: 600; }
+
+  .search-bar { width: 100%; padding: 10px 16px; border-radius: 8px; border: 1px solid #2e3347; background: #1a1f2e; color: #e0e0e0; font-size: 0.95rem; margin-bottom: 16px; outline: none; }
+  .search-bar:focus { border-color: #7ee8a2; }
+  .filter-btns { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .filter-btn { padding: 5px 14px; border-radius: 20px; border: 1px solid #2e3347; background: #1a1f2e; color: #8b97b0; font-size: 0.82rem; cursor: pointer; }
+  .filter-btn.active { background: #1e3325; color: #7ee8a2; border-color: #2e5540; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+  thead th { background: #252b3b; color: #a0cfff; padding: 10px 12px; text-align: left; border-bottom: 1px solid #2e3347; position: sticky; top: 0; z-index: 1; }
+  tbody tr { border-bottom: 1px solid #1e2233; }
+  tbody tr:hover { background: #1e2436; }
+  tbody td { padding: 8px 12px; color: #c0cce0; vertical-align: top; line-height: 1.4; }
+  td.company { color: #fff; font-weight: 500; }
+  .badge { display: inline-block; font-size: 0.7rem; padding: 2px 7px; border-radius: 3px; font-weight: 600; }
+  .badge-shinip { background: #1a3325; color: #7ee8a2; border: 1px solid #2e5540; }
+  .badge-mixed { background: #1e2a40; color: #7eb8f7; border: 1px solid #2a3f60; }
+  .badge-possible { background: #2a2040; color: #b49cf7; border: 1px solid #3e2f60; }
+  .kw-badge { font-size: 0.7rem; padding: 2px 6px; border-radius: 3px; background: #252b3b; color: #8b97b0; }
+  a.job-link { color: #7eb8f7; text-decoration: none; }
+  a.job-link:hover { text-decoration: underline; }
+  .table-wrap { overflow-x: auto; max-height: 560px; overflow-y: auto; border: 1px solid #2e3347; border-radius: 8px; }
+
+  footer { text-align: center; padding: 28px; color: #4a5568; font-size: 0.78rem; border-top: 1px solid #2e3347; margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🤖 AI Job Hub — 신입 채용공고 분석</h1>
+  <p>데이터 기준: 2026년 3월 16일 &nbsp;|&nbsp; 출처: <a href="https://leejungyeop.github.io/ai-job-hub/" style="color:#7eb8f7">leejungyeop.github.io/ai-job-hub</a></p>
+  <span class="filter-badge">✅ 타이틀 기반 노이즈 필터 적용 버전</span>
+</header>
+
+<!-- 핵심 수치 -->
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="num">1,460</div>
+    <div class="label">필터 후 전체 공고</div>
+  </div>
+  <div class="stat-card">
+    <div class="num">192</div>
+    <div class="label">신입 관련 공고</div>
+  </div>
+  <div class="stat-card">
+    <div class="num">39</div>
+    <div class="label">순수 신입 공고</div>
+  </div>
+  <div class="stat-card">
+    <div class="num red">1,245</div>
+    <div class="label">제거된 노이즈 (원본 대비)</div>
+  </div>
+  <div class="stat-card">
+    <div class="num red">58%</div>
+    <div class="label">기존 신입공고 중 노이즈 비율<br><span style="font-size:0.75rem;font-weight:400">462개 → 192개</span></div>
+  </div>
+  <div class="stat-card">
+    <div class="num">83%</div>
+    <div class="label">수도권 집중도</div>
+  </div>
+</div>
+
+<!-- 차트 -->
+<div class="section">
+  <h2>📊 분포 분석</h2>
+  <div class="chart-grid">
+    <div class="chart-box">
+      <h3>신입 유형별 (192개)</h3>
+      <canvas id="typeChart"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>채용 플랫폼별</h3>
+      <canvas id="sourceChart"></canvas>
+    </div>
+  </div>
+  <div class="chart-grid">
+    <div class="chart-box">
+      <h3>기술 키워드별 신입 공고 수</h3>
+      <canvas id="keywordChart"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>지역별 신입 공고 수</h3>
+      <canvas id="regionChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- 인사이트 -->
+<div class="section">
+  <h2>💡 핵심 인사이트</h2>
+  <div class="insight-box">
+    <ul class="insight-list">
+      <li>📌 전체 1,460개 AI/ML 공고 중 신입 가능은 <span class="hl">192개(13.2%)</span> — 10개 중 1~2개만 신입 가능</li>
+      <li>📌 순수 "신입" 명시 공고는 <span class="hl">39개</span>뿐. 나머지 153개는 신입·경력 혼합이거나 조건부 지원 가능</li>
+      <li>📌 노이즈 필터 전 462개 → 필터 후 <span class="hl">192개</span>. <span class="hl-red">기존 공고의 58%가 AI와 무관한 직군</span>이었음</li>
+      <li>📌 지역: <span class="hl">서울(57%) + 경기(22%) = 79%</span> 수도권 집중. 서울 강남구가 단일 지역 1위</li>
+      <li>📌 키워드: <span class="hl">AI(49%)</span>가 압도적 1위, LLM 관련 공고는 아직 6개로 적음</li>
+      <li>📌 플랫폼: <span class="hl-blue">사람인(66%) > 잡코리아(34%)</span>. 원티드는 experience 필드 미수집으로 신입 필터 미적용 — 실제 신입 공고 더 있을 가능성</li>
+      <li>📌 대기업 신입: <span class="hl">한화에어로스페이스(석/박사), 현대오토에버, LG에너지솔루션, 현대중공업, SK텔레콤</span> — 대부분 석사 이상 요구</li>
+      <li>📌 학부 지원 현실적인 공고: 애자일소다, 바이트사이즈, 보스반도체(병특), 딥인사이트(병특), 플라잎 정도</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 주요 회사 카드 -->
+<div class="section">
+  <h2>⭐ 주요 공고 하이라이트</h2>
+  <div class="company-grid">
+
+    <div class="company-card">
+      <div class="co-header">
+        <div class="co-name">당근마켓</div>
+        <span class="co-type type-스타트업">스타트업</span>
+      </div>
+      <div class="co-title">ML Engineer (학사신입 / 석사신입 / 전환형인턴) — 3개 공고</div>
+      <div class="co-tags">
+        <span class="tag hl">ML</span><span class="tag hl">정규직/인턴</span><span class="tag">학사·석사 모두</span>
+      </div>
+      <div class="co-meta">📅 마감 <span class="deadline-warn">2026.03.22</span> &nbsp;|&nbsp; 📍 서울 서초구</div>
+      <a class="co-link" href="https://www.jobkorea.co.kr/Recruit/GI_Read/48735625" target="_blank">→ 잡코리아 (학사신입)</a>
+    </div>
+
+    <div class="company-card">
+      <div class="co-header">
+        <div class="co-name">네이버랩스</div>
+        <span class="co-type type-대기업">대기업</span>
+      </div>
+      <div class="co-title">Visual SLAM Research Engineer</div>
+      <div class="co-tags">
+        <span class="tag hl">SLAM / 컴퓨터비전</span><span class="tag hl">정규직</span><span class="tag warn">석사 이상</span>
+      </div>
+      <div class="co-meta">📅 마감 <span class="deadline-warn">2026.03.23</span> &nbsp;|&nbsp; 📍 경기 성남 네이버1784</div>
+      <a class="co-link" href="https://www.jobkorea.co.kr/Recruit/GI_Read/48746152" target="_blank">→ 잡코리아</a>
+    </div>
+
+    <div class="company-card">
+      <div class="co-header">
+        <div class="co-name">현대오토에버</div>
+        <span class="co-type type-대기업">대기업</span>
+      </div>
+      <div class="co-title">2026 상반기 신입사원 채용 (AI/데이터분석 포함)</div>
+      <div class="co-tags">
+        <span class="tag hl">정규직 신입</span><span class="tag">SW개발 / 데이터분석</span>
+      </div>
+      <div class="co-meta">📅 마감 <span class="deadline-ok">2026.03.23 13:00</span> &nbsp;|&nbsp; 📍 서울 강남</div>
+      <a class="co-link" href="https://www.jobkorea.co.kr/Recruit/GI_Read/48707607" target="_blank">→ 잡코리아</a>
+    </div>
+
+    <div class="company-card">
+      <div class="co-header">
+        <div class="co-name">한화에어로스페이스</div>
+        <span class="co-type type-대기업">대기업</span>
+      </div>
+      <div class="co-title">AI Research 석/박사 특별채용 — 7개 분야<br><small style="color:#6a7589">자율주행 · 컴퓨터비전 · 생성형AI · 자율에이전트 · 온디바이스AI · ML · 지능형의사결정</small></div>
+      <div class="co-tags">
+        <span class="tag warn">석·박사 필수</span><span class="tag hl">정규직</span>
+      </div>
+      <div class="co-meta">📅 마감 <span class="deadline-ok">2026.03.30 15:00</span> &nbsp;|&nbsp; 📍 경기 성남 / 서울 / 대전</div>
+      <a class="co-link" href="https://www.jobkorea.co.kr/Recruit/GI_Read/48794277" target="_blank">→ 잡코리아</a>
+    </div>
+
+    <div class="company-card">
+      <div class="co-header">
+        <div class="co-name">SK텔레콤</div>
+        <span class="co-type type-대기업">대기업</span>
+      </div>
+      <div class="co-title">파운데이션 모델 데이터 담당자</div>
+      <div class="co-tags">
+        <span class="tag hl">Foundation Model / NLP</span><span class="tag warn">계약직</span>
+      </div>
+      <div class="co-meta">📅 마감 <span class="deadline-warn">2026.03.22</span> &nbsp;|&nbsp; 📍 서울 중구</div>
+      <a class="co-link" href="https://www.jobkorea.co.kr/Recruit/GI_Read/48770164" target="_blank">→ 잡코리아</a>
+    </div>
+
+    <div class="company-card">
+      <div class="co-header">
+        <div class="co-name">HD현대중공업그룹</div>
+        <span class="co-type type-대기업">대기업</span>
+      </div>
+      <div class="co-title">연구직 신입 채용 — 5개 분야<br><small style="color:#6a7589">AI/DT · Physical AI · 생성형 LLM · 무인함정 인지/판단 · 피지컬AI</small></div>
+      <div class="co-tags">
+        <span class="tag hl">연구직 신입</span><span class="tag">방산 / 조선</span>
+      </div>
+      <div class="co-meta">📍 경기 성남 / 울산</div>
+      <a class="co-link" href="https://www.jobkorea.co.kr/Recruit/GI_Read/48764210" target="_blank">→ 잡코리아</a>
+    </div>
+
+    <div class="company-card">
+      <div class="co-header">
+        <div class="co-name">애자일소다</div>
+        <span class="co-type type-스타트업">스타트업</span>
+      </div>
+      <div class="co-title">생성형AI 데이터사이언티스트 / AI플랫폼 시스템 엔지니어(신입)</div>
+      <div class="co-tags">
+        <span class="tag hl">Gen AI</span><span class="tag hl">순수 신입</span><span class="tag">AI 컨설팅</span>
+      </div>
+      <div class="co-meta">📍 서울 강남</div>
+      <a class="co-link" href="https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53302333" target="_blank">→ 사람인</a>
+    </div>
+
+    <div class="company-card">
+      <div class="co-header">
+        <div class="co-name">보스반도체</div>
+        <span class="co-type type-스타트업">스타트업</span>
+      </div>
+      <div class="co-title">ML Systems Runtime Engineer [신입/병특가능]</div>
+      <div class="co-tags">
+        <span class="tag hl">ML Systems</span><span class="tag hl">병역특례</span><span class="tag">반도체 AI</span>
+      </div>
+      <div class="co-meta">📍 경기 성남 분당</div>
+      <a class="co-link" href="https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53330517" target="_blank">→ 사람인</a>
+    </div>
+
+    <div class="company-card">
+      <div class="co-header">
+        <div class="co-name">바이트사이즈</div>
+        <span class="co-type type-스타트업">스타트업</span>
+      </div>
+      <div class="co-title">LLM RAG 및 AI Agent 개발 신입</div>
+      <div class="co-tags">
+        <span class="tag hl">LLM / RAG / Agent</span><span class="tag hl">순수 신입</span>
+      </div>
+      <div class="co-meta">📍 부산 전체</div>
+      <a class="co-link" href="https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53258077" target="_blank">→ 사람인</a>
+    </div>
+
+    <div class="company-card">
+      <div class="co-header">
+        <div class="co-name">딥인사이트</div>
+        <span class="co-type type-스타트업">스타트업</span>
+      </div>
+      <div class="co-title">Vision AI 개발자 (병역특례)</div>
+      <div class="co-tags">
+        <span class="tag hl">Computer Vision</span><span class="tag hl">병역특례</span>
+      </div>
+      <div class="co-meta">📍 경기 성남</div>
+      <a class="co-link" href="https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53341718" target="_blank">→ 사람인</a>
+    </div>
+
+    <div class="company-card">
+      <div class="co-header">
+        <div class="co-name">플라잎</div>
+        <span class="co-type type-스타트업">스타트업</span>
+      </div>
+      <div class="co-title">AI Manipulation Engineer / Physical AI Engineer (전문연 가능)</div>
+      <div class="co-tags">
+        <span class="tag hl">Robotics AI</span><span class="tag hl">전문연구요원</span>
+      </div>
+      <div class="co-meta">📍 경기 성남 분당</div>
+      <a class="co-link" href="https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=0" target="_blank">→ 사람인</a>
+    </div>
+
+    <div class="company-card">
+      <div class="co-header">
+        <div class="co-name">에너자이</div>
+        <span class="co-type type-스타트업">스타트업</span>
+      </div>
+      <div class="co-title">AI R&D 연구원 / ML Engineer / AI 컴파일러 엔지니어 (신입) — 3개</div>
+      <div class="co-tags">
+        <span class="tag hl">AI / ML / 컴파일러</span><span class="tag hl">순수 신입</span>
+      </div>
+      <div class="co-meta">📍 서울 강남</div>
+      <a class="co-link" href="https://www.saramin.co.kr/zf_user/jobs/relay/view" target="_blank">→ 사람인</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- 전체 목록 테이블 -->
+<div class="section">
+  <h2>📋 신입 관련 전체 목록 (192개)</h2>
+  <input class="search-bar" type="text" id="searchInput" placeholder="회사명, 직책, 키워드로 검색..." oninput="filterTable()">
+  <div class="filter-btns">
+    <button class="filter-btn active" onclick="setFilter('all', this)">전체 (192)</button>
+    <button class="filter-btn" onclick="setFilter('신입', this)">순수 신입 (39)</button>
+    <button class="filter-btn" onclick="setFilter('신입·경력', this)">신입·경력 (91)</button>
+    <button class="filter-btn" onclick="setFilter('신입 지원 가능', this)">신입 지원 가능 (62)</button>
+  </div>
+  <div class="table-wrap">
+  <table id="jobTable">
+    <thead>
+      <tr>
+        <th style="width:150px">회사</th>
+        <th>직책</th>
+        <th style="width:90px">경력 유형</th>
+        <th style="width:75px">키워드</th>
+        <th style="width:130px">지역</th>
+        <th style="width:65px">출처</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+  </div>
+  <p style="color:#6a7589; font-size:0.78rem; margin-top:8px" id="countLabel">192개 표시 중</p>
+</div>
+
+<footer>
+  데이터: <a href="https://leejungyeop.github.io/ai-job-hub/" style="color:#7eb8f7">AI Job Hub</a> &nbsp;|&nbsp;
+  기준일: 2026-03-16 &nbsp;|&nbsp;
+  노이즈 필터: 제목 기반 AI/ML 키워드 매칭 &nbsp;|&nbsp;
+  실제 마감·채용 여부는 각 사이트에서 직접 확인
+</footer>
+
+<script>
+new Chart(document.getElementById('typeChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['신입·경력 (91)', '신입 지원 가능 (62)', '순수 신입 (39)'],
+    datasets: [{
+      data: [91, 62, 39],
+      backgroundColor: ['#3b82f6', '#8b5cf6', '#10b981'],
+      borderColor: '#1a1f2e', borderWidth: 3
+    }]
+  },
+  options: { responsive: true, plugins: { legend: { labels: { color: '#c0cce0', font: { size: 12 } } } } }
+});
+
+new Chart(document.getElementById('sourceChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['사람인 (127)', '잡코리아 (65)', '원티드 (미수집)'],
+    datasets: [{
+      data: [127, 65, 0.1],
+      backgroundColor: ['#f59e0b', '#ec4899', '#374151'],
+      borderColor: '#1a1f2e', borderWidth: 3
+    }]
+  },
+  options: { responsive: true, plugins: { legend: { labels: { color: '#c0cce0', font: { size: 12 } } } } }
+});
+
+new Chart(document.getElementById('keywordChart'), {
+  type: 'bar',
+  data: {
+    labels: ['AI', '딥러닝', 'ML', '인공지능', '데이터사이언스', 'NLP', 'LLM', '컴퓨터비전', '머신러닝'],
+    datasets: [{
+      data: [95, 25, 23, 21, 8, 7, 6, 4, 3],
+      backgroundColor: ['#7ee8a2','#7eb8f7','#f59e0b','#ec4899','#a78bfa','#34d399','#fb923c','#60a5fa','#f472b6'],
+      borderRadius: 5
+    }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: '#2e3347' }, ticks: { color: '#8b97b0' } },
+      y: { grid: { color: '#2e3347' }, ticks: { color: '#c0cce0' } }
+    }
+  }
+});
+
+new Chart(document.getElementById('regionChart'), {
+  type: 'bar',
+  data: {
+    labels: ['서울','경기','대전','영남','부산','인천','호남','충청','제주','강원'],
+    datasets: [{
+      data: [110, 43, 10, 7, 7, 6, 5, 2, 1, 1],
+      backgroundColor: '#7eb8f7', borderRadius: 5
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: '#2e3347' }, ticks: { color: '#c0cce0' } },
+      y: { grid: { color: '#2e3347' }, ticks: { color: '#8b97b0' } }
+    }
+  }
+});
+
+// 테이블 데이터
+const jobs = [
+  ["아이파킹(주)","AI서비스 개발자 채용","신입","AI","서울금천구","사람인",""],
+  ["한국존슨앤드존슨","[Vision Care] AI Engineer - Leadership Dev Program","신입","AI","서울용산구","사람인",""],
+  ["현대엘리베이터(주)","2026 상반기 현대그룹 신입 매니저(데이터/AI개발)","신입","AI","서울전체","사람인",""],
+  ["(주)에너자이","AI R&D 연구원 (신입)","신입","AI","서울강남구","사람인",""],
+  ["엔셀 주식회사","AI사업부 JAVA 개발자 (신입)","신입","AI","서울강남구","사람인",""],
+  ["(주)펨트론","AI데이터 라벨링 신입채용 (고졸 가능)","신입","AI","서울금천구","사람인",""],
+  ["(주)연합인포맥스","IT/AI부문(전문연구요원 포함) 신입","신입","AI","서울종로구","사람인",""],
+  ["소바젠(주)","AI기반 RNA 신약 개발 연구원","신입","AI","대전유성구","사람인",""],
+  ["(주)애자일소다","생성형AI 데이터사이언티스트","신입","AI","서울강남구","사람인","https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53302333"],
+  ["(주)276홀딩스","[신입] AI Solutions Engineer (AI Agent 엔지니어)","신입","AI","서울영등포구","사람인",""],
+  ["(주)에스아이에이","Research Engineer (Multimodal AI)","신입","AI","대전유성구","사람인",""],
+  ["(주)넥시클","AI엔지니어(신입)","신입","AI","서울도봉구","사람인",""],
+  ["(주)애자일소다","AI플랫폼 시스템 엔지니어(신입)","신입","AI","서울강남구","사람인","https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53295464"],
+  ["(주)펨트론","AI연구개발자 채용","신입","AI","서울금천구","사람인",""],
+  ["(주)플래티어","AI기술 개발자(전문연구요원 현역)","신입","AI","서울송파구","사람인",""],
+  ["링키지랩(kakao계열사)","AI세이프티 담당자 채용 [장애인 채용]","신입","AI","서울성동구","사람인",""],
+  ["링키지랩(kakao계열사)","AI용 멀티모달 레이블링 담당 [장애인 채용]","신입","AI","서울성동구","사람인",""],
+  ["스노우(네이버그룹)","AI 콘텐츠 프로모션 기획/운영 체험형 인턴","신입","AI","경기 성남시","잡코리아","https://www.jobkorea.co.kr/Recruit/GI_Read/48756501"],
+  ["(주)에너자이","ML Engineer/Researcher (신입)","신입","ML","서울강남구","사람인",""],
+  ["(주)보스반도체","ML Systems Runtime Engineer [신입/병특가능]","신입","ML","경기성남시 분당구","사람인","https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53330517"],
+  ["(주)에너자이","AI 컴파일러 엔지니어 (신입)","신입","ML","서울강남구","사람인",""],
+  ["(주)딥인사이트","Vision AI 개발자(병역특례)","신입","ML","경기성남시","사람인",""],
+  ["(주)플라잎","AI Manipulation Engineer (신입)","신입","ML","경기성남시 분당구","사람인",""],
+  ["(주)플라잎","Physical AI Engineer (전문연 가능)","신입","ML","경기성남시 분당구","사람인",""],
+  ["(주)제논","[전환형 인턴] 인공지능 엔지니어 채용","신입","머신러닝","서울강남구","사람인",""],
+  ["포인드(주)","인공지능·딥러닝개발자(신입) 채용","신입","딥러닝","경북구미시","사람인",""],
+  ["(주)에스아이에이","Research Engineer (Foundation Model Applications)","신입","딥러닝","대전유성구","사람인",""],
+  ["(주)페이크아이즈","컴퓨터 비전 인공지능 연구원 모집","신입","인공지능","서울마포구","사람인",""],
+  ["(주)엔티엘헬스케어","의료영상 인공지능 모델 연구/개발_신입","신입","인공지능","경기성남시","사람인",""],
+  ["(주)리보틱스","AI Agent Engineer (신입)","신입","데이터사이언스","경기시흥시","사람인",""],
+  ["(주)바이트사이즈","LLM RAG 및 AI Agent 개발 신입","신입","NLP","부산전체","사람인","https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53258077"],
+  ["주식회사의생명과학대학","AI 법률상담 프롬프트 솔루션 개발자 모집","신입","NLP","인천부평구","사람인",""],
+  ["㈜디엘정보기술","LLM 및 파운데이션 모델 엔지니어","신입","LLM","충북청주시","사람인",""],
+  ["㈜플래티어","AI기술개발자(전문연구요원)","신입","딥러닝","서울 송파구","잡코리아",""],
+  ["(주)에이티아이씨코리아","CFD/CAE 해석 및 AI 기반 해석 신입 채용","신입","ML","경기안양시","사람인",""],
+  ["IPEA","전산실 AI(인공지능) 서버 운영 관리","신입","AI","경기군포시","사람인",""],
+  ["(주)인포트롤테크놀러지","운전자동화 및 인공지능 인재 모집","신입","인공지능","서울양천구","사람인",""],
+  ["(주)딥인사이트","AI 개발자(병역특례)","신입","데이터사이언스","경기성남시","사람인",""],
+  ["메가존클라우드(주)","Business Enablement & Training (신입)","신입","ML","경기과천시","사람인",""],
+  // 신입·경력
+  ["서울대학교병원","AI기반 의료 데이터(Image, EMR) 분석 채용","신입·경력","AI","서울종로구","사람인","https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53339617"],
+  ["서울대학교병원","AI API 플랫폼 구축 리드 엔지니어","신입·경력","AI","서울종로구","사람인","https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53339643"],
+  ["한화에어로스페이스","AI Research 석·박사 특별채용 (컴퓨터비전)","신입·경력","AI","서울전체","사람인","https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53362146"],
+  ["한화에어로스페이스","AI Research 석·박사 특별채용 (생성형AI)","신입·경력","AI","서울전체","사람인","https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53362545"],
+  ["한화에어로스페이스","AI Research 석·박사 특별채용 (지능형의사결정)","신입·경력","AI","서울전체","사람인","https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53362659"],
+  ["한화에어로스페이스","AI Research 석·박사 특별채용 (온디바이스AI)","신입·경력","AI","서울전체","사람인","https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53362334"],
+  ["한화에어로스페이스","AI Research 석·박사 특별채용 (머신러닝)","신입·경력","AI","경기성남시 분당구","사람인","https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53362888"],
+  ["한화에어로스페이스","AI Research 석·박사 특별채용 (자율주행)","신입·경력","AI","경기성남시 분당구","사람인","https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53362998"],
+  ["한화에어로스페이스","AI Research 석·박사 특별채용 (자율에이전트)","신입·경력","AI","경기성남시 분당구","사람인","https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=53362783"],
+  // 신입 지원 가능
+  ["당근마켓","Software Engineer, Machine Learning (학사 신입)","신입 지원 가능","ML","서울 서초구","잡코리아","https://www.jobkorea.co.kr/Recruit/GI_Read/48735625"],
+  ["당근마켓","Software Engineer Intern, ML (전환형 인턴)","신입 지원 가능","ML","서울 서초구","잡코리아","https://www.jobkorea.co.kr/Recruit/GI_Read/48735874"],
+  ["당근마켓","Software Engineer, Machine Learning (석사 신입)","신입 지원 가능","ML","서울 서초구","잡코리아","https://www.jobkorea.co.kr/Recruit/GI_Read/48735584"],
+  ["네이버랩스","Visual SLAM Research Engineer","신입 지원 가능","ML","경기 성남시","잡코리아","https://www.jobkorea.co.kr/Recruit/GI_Read/48746152"],
+  ["한화에어로스페이스","AI Research 석/박사 특별채용 (통합)","신입 지원 가능","ML","경기 성남시 외","잡코리아","https://www.jobkorea.co.kr/Recruit/GI_Read/48794277"],
+  ["현대오토에버","2026년 상반기 신입사원 채용","신입 지원 가능","AI","서울 강남구","잡코리아","https://www.jobkorea.co.kr/Recruit/GI_Read/48707607"],
+  ["SK텔레콤","파운데이션 모델 데이터 담당자","신입 지원 가능","NLP","서울 중구","잡코리아","https://www.jobkorea.co.kr/Recruit/GI_Read/48770164"],
+  ["HD현대중공업","연구직 신입/경력 채용 - AI/DT","신입 지원 가능","ML","울산 동구","잡코리아","https://www.jobkorea.co.kr/Recruit/GI_Read/48764210"],
+  ["HD현대중공업","연구직 신입 채용 - 피지컬 AI","신입 지원 가능","컴퓨터비전","경기 성남시","잡코리아","https://www.jobkorea.co.kr/Recruit/GI_Read/48763700"],
+  ["HD현대중공업","연구직 신입/경력 - 생성형 언어모델","신입 지원 가능","데이터사이언스","경기 성남시","잡코리아","https://www.jobkorea.co.kr/Recruit/GI_Read/48763731"],
+  ["HD현대중공업","연구직 신입/경력 - 무인함정 인지/판단","신입 지원 가능","컴퓨터비전","경기 성남시","잡코리아","https://www.jobkorea.co.kr/Recruit/GI_Read/48763638"],
+  ["LG에너지솔루션","2026 상반기 신입사원 수시채용 (BMS SW)","신입 지원 가능","데이터사이언스","대전 유성구","잡코리아","https://www.jobkorea.co.kr/Recruit/GI_Read/48754235"],
+  ["LG에너지솔루션","2026 상반기 신입사원 수시채용","신입 지원 가능","데이터사이언스","서울 영등포구","잡코리아","https://www.jobkorea.co.kr/Recruit/GI_Read/48753575"],
+  ["LG에너지솔루션","2026 상반기 신입사원 수시채용 (검사기술)","신입 지원 가능","컴퓨터비전","충북 청주시","잡코리아","https://www.jobkorea.co.kr/Recruit/GI_Read/48754259"],
+  ["현대로보틱스","연구직 - 생성형 AI 기반 로봇 응용 SW","신입 지원 가능","NLP","경기 성남시","잡코리아",""],
+  ["에스케이쉴더스","클라우드 기반 스마트 융합보안 채용연계형","신입 지원 가능","NLP","서울 중구","잡코리아",""],
+];
+
+let currentFilter = 'all';
+
+function getBadge(exp) {
+  if (exp === '신입') return '<span class="badge badge-shinip">신입</span>';
+  if (exp === '신입·경력') return '<span class="badge badge-mixed">신입·경력</span>';
+  return '<span class="badge badge-possible">신입 지원 가능</span>';
+}
+
+function renderTable(data) {
+  document.getElementById('tableBody').innerHTML = data.map(j => `
+    <tr>
+      <td class="company">${j[0]}</td>
+      <td>${j[6] ? `<a class="job-link" href="${j[6]}" target="_blank">${j[1]}</a>` : j[1]}</td>
+      <td>${getBadge(j[2])}</td>
+      <td><span class="kw-badge">${j[3]}</span></td>
+      <td style="font-size:0.78rem;color:#8b97b0">${j[4]}</td>
+      <td style="font-size:0.78rem;color:#8b97b0">${j[5]}</td>
+    </tr>`).join('');
+  document.getElementById('countLabel').textContent = `${data.length}개 표시 중 (전체 192개)`;
+}
+
+function setFilter(type, btn) {
+  currentFilter = type;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterTable();
+}
+
+function filterTable() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  let data = jobs;
+  if (currentFilter !== 'all') data = data.filter(j => j[2] === currentFilter);
+  if (q) data = data.filter(j => j.join(' ').toLowerCase().includes(q));
+  renderTable(data);
+}
+
+renderTable(jobs);
+</script>
+</body>
+</html>
